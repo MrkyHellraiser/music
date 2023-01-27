@@ -62,7 +62,7 @@
                         </button>
                     </vee-form>
                     <!-- Sort Comments -->
-                    <select v-model="sorting"
+                    <select v-model="sort"
                         class="block mt-4 py-1.5 px-3 bg-black text-white border border-gray-300 transition duration-500 focus:outline-none focus:border-white rounded">
                         <option value="1">Latest</option>
                         <option value="2">Oldest</option>
@@ -97,7 +97,8 @@ import { useRoute, useRouter } from "vue-router"
 import { computed } from "@vue/reactivity";
 import { usePlayerStore } from "@/stores/player";
 import { useUserStore } from "@/stores/user";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+import { watch } from "vue";
 const route = useRoute();
 const router = useRouter();
 const playerStore = usePlayerStore();
@@ -116,32 +117,32 @@ let comment_show_alert = ref(false);
 let comment_alert_variant = ref("bg-blue-500");
 let comment_alert_message = ref("Please wait! Your comment is being submitted");
 let comments = ref([]);
-let sorting = ref("1");
+let sort = ref("1");
 
 const sortedComments = computed(() => {
     return comments.value.slice().sort((a, b) => {
-        if (sorting.value === "1") {
+        if (sort.value === "1") {
             return new Date(b.datePosted) - new Date(a.datePosted);
         }
 
         return new Date(a.datePosted) - new Date(b.datePosted);
     })
 });
-const created = async () => {
+onMounted(async () => {
     const docSnapshot = await songsCollection.doc(route.params.id).get();
 
     if (!docSnapshot.exists) {
         router.push({ name: "home" });
         return;
     }
+    sort.value = route.query.sort;
 
-    let { sorting } = route.query;
-
-    sorting = sorting === "1" || sorting === "2" ? sorting : "1";
+    sort.value = sort.value === "1" || sort.value === "2" ? sort.value : "1";
 
     song.value = docSnapshot.data();
     getComments();
-};
+
+})
 
 const addComment = async (values, { resetForm }) => {
     comment_in_submission.value = true;
@@ -188,18 +189,16 @@ const getComments = async () => {
     });
 };
 
-
-const sort = (newVal) => {
-    if (newVal === route.query.sorting) {
+watch(sort, (newVal) => {
+    if (newVal === route.query.sort) {
         return;
     }
 
     router.push({
         query: {
-            sorting: newVal,
+            sort: newVal,
         },
     });
-};
-created()
-sort()
+});
+
 </script>
