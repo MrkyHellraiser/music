@@ -9,7 +9,8 @@
             <div
                 class="container mx-auto flex items-center">
                 <!-- Play/Pause Button -->
-                <button @click.prevent="newSong(song)"
+                <button
+                    @click.prevent="[playerStore.newSong(song), playerStore.playing = true]"
                     type="button"
                     class="z-50 h-24 w-24 text-3xl bg-white text-black rounded-full focus:outline-none">
                     <i class="fas"
@@ -61,7 +62,7 @@
                         </button>
                     </vee-form>
                     <!-- Sort Comments -->
-                    <select v-model="sort"
+                    <select v-model="sorting"
                         class="block mt-4 py-1.5 px-3 bg-black text-white border border-gray-300 transition duration-500 focus:outline-none focus:border-white rounded">
                         <option value="1">Latest</option>
                         <option value="2">Oldest</option>
@@ -92,43 +93,41 @@
 
 <script setup>
 import { songsCollection, commentsCollection, auth } from "@/includes/firebase";
-import { computed } from "@vue/reactivity";
 import { useRoute, useRouter } from "vue-router"
-import { useUserStore } from "@/stores/user";
+import { computed } from "@vue/reactivity";
 import { usePlayerStore } from "@/stores/player";
-import { onMounted } from "vue";
-import { watch } from "vue";
+import { useUserStore } from "@/stores/user";
 import { ref } from "vue";
 const route = useRoute();
 const router = useRouter();
-const userStore = useUserStore();
 const playerStore = usePlayerStore();
+const userStore = useUserStore();
+const playing = computed(() => playerStore.playing);
+const userLoggedIn = computed(() => userStore.userLoggedIn)
 
 
 let song = ref({});
-const schema = ref({
+
+const schema = {
     comment: "required|min:3",
-});
+};
 let comment_in_submission = ref(false);
 let comment_show_alert = ref(false);
 let comment_alert_variant = ref("bg-blue-500");
-let comment_alert_message = ref("Please wait! Your comment is being submitted.");
+let comment_alert_message = ref("Please wait! Your comment is being submitted");
 let comments = ref([]);
-let sort = ref("1");
+let sorting = ref("1");
 
-const userLoggedIn = computed(() => userStore.userLoggedIn);
-const playing = computed(() => playerStore.sound.playing ? playerStore.sound.playing() : false);
-
-const sortedComments = () => {
+const sortedComments = computed(() => {
     return comments.value.slice().sort((a, b) => {
-        if (sort.value === "1") {
+        if (sorting.value === "1") {
             return new Date(b.datePosted) - new Date(a.datePosted);
         }
 
         return new Date(a.datePosted) - new Date(b.datePosted);
-    });
-};
-onMounted(async () => {
+    })
+});
+const created = async () => {
     const docSnapshot = await songsCollection.doc(route.params.id).get();
 
     if (!docSnapshot.exists) {
@@ -136,20 +135,20 @@ onMounted(async () => {
         return;
     }
 
-    const { sort } = route.query;
+    let { sorting } = route.query;
 
-    sort = sort === "1" || sort === "2" ? sort : "1";
+    sorting = sorting === "1" || sorting === "2" ? sorting : "1";
 
     song.value = docSnapshot.data();
     getComments();
-})
+};
 
 const addComment = async (values, { resetForm }) => {
     comment_in_submission.value = true;
     comment_show_alert.value = true;
     comment_alert_variant.value = "bg-blue-500";
     comment_alert_message.value =
-        "Please wait! Your comment is being submitted.";
+        "Please wait! Your comment is being submitted";
 
     const comment = {
         content: values.comment,
@@ -179,24 +178,28 @@ const getComments = async () => {
         .where("sid", "==", route.params.id)
         .get();
 
-    comments = [];
+    comments.value = [];
 
     snapshots.forEach((doc) => {
-        comments.push({
+        comments.value.push({
             docID: doc.id,
             ...doc.data(),
         });
     });
 };
-watch(sort, (newVal) => {
-    if (newVal === route.query.sort) {
+
+
+const sort = (newVal) => {
+    if (newVal === route.query.sorting) {
         return;
     }
+
     router.push({
         query: {
-            sort: newVal,
+            sorting: newVal,
         },
     });
-})
-
+};
+created()
+sort()
 </script>

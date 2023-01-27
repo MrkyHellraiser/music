@@ -3,7 +3,7 @@
     <div
         class="fixed bottom-0 left-0 bg-black px-4 py-2 w-full">
         <!-- Track Info -->
-        <!-- <div class="text-center"
+        <div class="text-center text-white"
             v-if="current_song.modified_name">
             <span class="song-title font-bold">{{
                 current_song.modified_name
@@ -12,11 +12,11 @@
             <span class="song-artist">{{
                 current_song.display_name
             }}</span>
-        </div> -->
+        </div>
         <div class="flex flex-nowrap gap-4 items-center">
             <!-- Play/Pause Button -->
             <button type="button"
-                @click.prevent="toggleAudio">
+                @click.prevent="playerStore.toggleAudio()">
                 <i class="fa text-white text-xl"
                     :class="{ 'fa-play': !playing, 'fa-pause': playing }"></i>
             </button>
@@ -58,8 +58,8 @@ const playing = computed(() => playerStore.playing);
 const duration = computed(() => playerStore.duration);
 const seek = computed(() => playerStore.seek);
 const playerProgress = computed(() => playerStore.playerProgress);
-// console.log(playerStore.current_song);
-const current_song = playerStore.current_song;
+const current_song = computed(() => playerStore.current_song);
+
 
 
 </script>

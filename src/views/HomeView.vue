@@ -56,24 +56,26 @@ import { songsCollection } from "@/includes/firebase";
 import { ref } from "@vue/reactivity"
 import { onBeforeUnmount, onMounted } from "vue";
 
+
 let songs = ref([]);
-const maxPerPage = ref(25);
+let maxPerPage = ref(25);
 let pendingRequest = ref(false);
 
+const created = async () => {
+    getSongs();
 
-
-// onMounted(() => {
-await getSongs();
-
-window.addEventListener("scroll", handleScroll);
-// })
-
-onBeforeUnmount(() => {
+    window.addEventListener("scroll", handleScroll);
+};
+const beforeUnmount = () => {
     window.removeEventListener("scroll", handleScroll);
-})
+};
+
 const handleScroll = () => {
     const { scrollTop, offsetHeight } = document.documentElement;
     const { innerHeight } = window;
+    // Alternative (less strict)
+    // const bottomOfWindow =
+    //   Math.round(scrollTop) + innerHeight > offsetHeight - 100;
     const bottomOfWindow =
         Math.round(scrollTop) + innerHeight === offsetHeight;
 
@@ -81,9 +83,8 @@ const handleScroll = () => {
         getSongs();
     }
 };
-
 const getSongs = async () => {
-    if (pendingRequest) {
+    if (pendingRequest.value) {
         return;
     }
 
@@ -95,6 +96,7 @@ const getSongs = async () => {
         const lastDoc = await songsCollection
             .doc(songs.value[songs.value.length - 1].docID)
             .get();
+
         snapshots = await songsCollection
             .orderBy("modified_name")
             .startAfter(lastDoc)
@@ -103,7 +105,7 @@ const getSongs = async () => {
     } else {
         snapshots = await songsCollection
             .orderBy("modified_name")
-            .limit(maxPerPage)
+            .limit(maxPerPage.value)
             .get();
     }
 
@@ -116,4 +118,6 @@ const getSongs = async () => {
 
     pendingRequest.value = false;
 };
+created()
+
 </script>

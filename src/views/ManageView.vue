@@ -93,4 +93,5 @@ const beforeRouteLeave = (to, from, next) => {
 //         next({ name: "home" });
 //     }
 // },
+created()
 </script>

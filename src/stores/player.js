@@ -9,13 +9,17 @@ export const usePlayerStore = defineStore("player", () => {
   let seek = ref("00:00");
   let duration = ref("00:00");
   let playerProgress = ref("0%");
+  let playing = ref(false);
 
+  
+  
   const newSong = async (song) => {
     if (sound.value instanceof Howl) {
       sound.value.unload();
     }
 
-    current_song = song;
+    current_song.value = song;
+
     sound.value = new Howl({
       src: [song.url],
       html5: true,
@@ -24,7 +28,7 @@ export const usePlayerStore = defineStore("player", () => {
     sound.value.play();
 
     sound.value.on("play", () => {
-      requestAnimationFrame(progress.value);
+      requestAnimationFrame(progress);
     });
   };
   const toggleAudio = async () => {
@@ -34,9 +38,12 @@ export const usePlayerStore = defineStore("player", () => {
 
     if (sound.value.playing()) {
       sound.value.pause();
+      playing.value = false;
     } else {
       sound.value.play();
+      playing.value = true;
     }
+
   };
   const progress = () => {
     seek.value = helper.formatTime(sound.value.seek());
@@ -47,7 +54,7 @@ export const usePlayerStore = defineStore("player", () => {
     }%`;
 
     if (sound.value.playing()) {
-      requestAnimationFrame(progress.value);
+      requestAnimationFrame(progress);
     }
   };
   const updateSeek = (event) => {
@@ -72,13 +79,13 @@ export const usePlayerStore = defineStore("player", () => {
     seek,
     duration,
     playerProgress,
+    playing,
     newSong,
     toggleAudio,
     progress,
     updateSeek,
   };
 });
-
 if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(usePlayerStore, import.meta.hot));
 }
