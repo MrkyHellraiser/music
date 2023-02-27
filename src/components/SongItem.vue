@@ -8,7 +8,7 @@
                     song.modified_name
                 }}</router-link>
             <span class="text-white text-sm">{{
-                song.name
+                song.display_name
             }}</span>
         </div>
 

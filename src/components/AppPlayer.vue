@@ -60,6 +60,4 @@ const seek = computed(() => playerStore.seek);
 const playerProgress = computed(() => playerStore.playerProgress);
 const current_song = computed(() => playerStore.current_song);
 
-
-
 </script>

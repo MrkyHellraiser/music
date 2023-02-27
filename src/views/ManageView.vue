@@ -7,17 +7,17 @@
 
             <div class="col-span-1">
                 <app-upload ref="upload"
-                    :addSong="addSong" />
+                    @addSong="addSong" />
             </div>
             <div class="col-span-2">
                 <div
-                    class="bg-white rounded border border-gray-200 relative flex flex-col">
+                    class="bg-black text-white rounded border border-gray-200 relative flex flex-col">
                     <div
                         class="px-6 pt-6 pb-5 font-bold border-b border-gray-200">
                         <span class="card-title">My
                             Songs</span>
                         <i
-                            class="fa fa-compact-disc float-right text-green-400 text-2xl"></i>
+                            class="fa fa-compact-disc float-right text-red-00 text-2xl"></i>
                     </div>
                     <div class="p-6">
                         <composition-item
@@ -38,19 +38,19 @@
 import AppUpload from "@/components/AppUpload.vue";
 import CompositionItem from "@/components/CompositionItem.vue";
 import { songsCollection, auth } from "@/includes/firebase";
-import { ref } from "vue";
+import { ref, onBeforeMount } from "vue";
 
 let songs = ref([]);
 let unsavedFlag = ref(false);
+let upload = ref(null)
 
-
-const created = async () => {
+onBeforeMount(async () => {
     const snapshot = await songsCollection
         .where("uid", "==", auth.currentUser.uid)
         .get();
 
     snapshot.forEach(addSong);
-};
+})
 
 const updateSong = (i, values) => {
     songs.value[i].modified_name = values.modified_name;
@@ -93,5 +93,4 @@ const beforeRouteLeave = (to, from, next) => {
 //         next({ name: "home" });
 //     }
 // },
-created()
 </script>

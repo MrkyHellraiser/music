@@ -1,17 +1,17 @@
 <!-- eslint-disable prettier/prettier -->
 <template>
     <div
-        class="bg-white rounded border border-gray-200 relative flex flex-col">
+        class="bg-black rounded border border-gray-200 relative flex flex-col">
         <div
             class="px-6 pt-6 pb-5 font-bold border-b border-gray-200">
             <span class="card-title">Upload</span>
             <i
-                class="fas fa-upload float-right text-green-400 text-2xl"></i>
+                class="fas fa-upload float-right text-red-600 text-2xl"></i>
         </div>
         <div class="p-6">
             <!-- Upload Dropbox -->
-            <div class="w-full px-10 py-20 rounded text-center cursor-pointer border border-dashed border-gray-400 text-gray-400 transition duration-500 hover:text-white hover:bg-green-400 hover:border-green-400 hover:border-solid"
-                :class="{ 'bg-green-400 border-green-400 border-solid': is_dragover }"
+            <div class="w-full px-10 py-20 rounded text-center cursor-pointer border border-dashed border-gray-400 text-gray-400 transition duration-500 hover:text-white hover:bg-red-600 hover:border-red-600 hover:border-solid"
+                :class="{ 'bg-red-600 border-red-600 border-solid': is_dragover }"
                 @drag.prevent.stop=""
                 @dragstart.prevent.stop=""
                 @dragend.prevent.stop="is_dragover = false"
@@ -21,11 +21,12 @@
                 @drop.prevent.stop="upload($event)">
                 <h5>Drop your files here</h5>
             </div>
-            <input type="file" multiple
+            <input type="file" multiple class="text-white"
                 @change="upload($event)" />
             <hr class="my-6" />
             <!-- Progess Bars -->
-            <div class="mb-4" v-for="upload in uploads"
+            <div class="mb-4 text-white"
+                v-for="upload in uploads"
                 :key="upload.name">
                 <!-- File Name -->
                 <div class="font-bold text-sm"
@@ -36,7 +37,7 @@
                 <div
                     class="flex h-6 overflow-hidden bg-gray-200 rounded relative">
                     <p
-                        class="absolute left-1/2 -translate-x-1/2">
+                        class="absolute left-1/2 -translate-x-1/2 text-black font-bold">
                         {{ upload.current_progress }}%
                     </p>
                     <!-- Inner Progress Bar -->
@@ -59,7 +60,7 @@ import { onBeforeUnmount } from "vue"
 let is_dragover = ref(false);
 let uploads = ref([]);
 
-defineProps(["addSong"]);
+const emit = defineEmits(['addSong']);
 
 const upload = ($event) => {
     is_dragover.value = false;
@@ -113,9 +114,7 @@ const upload = ($event) => {
                 song.url = await task.snapshot.ref.getDownloadURL();
                 const songRef = await songsCollection.add(song);
                 const songSnapshot = await songRef.get();
-
-                addSong.value(songSnapshot);
-
+                emit('addSong', songSnapshot)
                 uploads.value[uploadIndex].variant = "bg-green-400";
                 uploads.value[uploadIndex].icon = "fas fa-check";
                 uploads.value[uploadIndex].text_class = "text-green-400";
@@ -134,3 +133,14 @@ onBeforeUnmount(() => {
     });
 }) 
 </script>
+
+<style>
+input::file-selector-button {
+    color: white;
+    background-color: black;
+    padding: 6px 12px;
+    border: 1px solid white;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+</style>

@@ -16,7 +16,6 @@
 import AppHeader from "@/components/AppHeader.vue";
 import AppAuth from "@/components/AppAuth.vue";
 import AppPlayer from "@/components/AppPlayer.vue";
-// import { computed } from "vue";
 import { useUserStore } from "./stores/user";
 import { auth } from "./includes/firebase";
 import { onMounted } from "vue";

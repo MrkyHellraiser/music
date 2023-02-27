@@ -10,7 +10,7 @@ export const usePlayerStore = defineStore("player", () => {
   let duration = ref("00:00");
   let playerProgress = ref("0%");
   let playing = ref(false);
-
+  // let songs = ref([]);
   
   
   const newSong = async (song) => {
@@ -74,6 +74,7 @@ export const usePlayerStore = defineStore("player", () => {
   };
   
   return {
+    // songs,
     current_song, 
     sound, 
     seek,
